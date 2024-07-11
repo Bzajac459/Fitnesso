@@ -112,7 +112,7 @@ class WorkoutDetailsScreen(Screen):
         button_layout.add_widget(self.end_button)
         button_layout.add_widget(self.back_button)
 
-        self.layout.add_widget(button_layout)  # Dodanie przycisków nawigacyjnych na dole
+        self.layout.add_widget(button_layout)
 
         self.add_widget(self.layout)
 
@@ -146,7 +146,7 @@ class WorkoutDetailsScreen(Screen):
 
     def on_pre_enter(self, *args):
         super().on_pre_enter(*args)
-        self.unit_system = self.manager.unit_system  # Get unit system from screen manager
+        self.unit_system = self.manager.unit_system
 
     def start_workout(self, workout_type):
         self.workout_type = workout_type
@@ -202,7 +202,7 @@ class WorkoutDetailsScreen(Screen):
         self.save_workout()
         self.dismiss_dialog()
         self.reset_stats()
-        self.manager.current = 'history'  # Navigate to history screen
+        self.manager.current = 'history'
 
     def update_stats(self, dt):
         elapsed_time = Clock.get_boottime() - self.start_time
@@ -216,18 +216,18 @@ class WorkoutDetailsScreen(Screen):
         avg_speed = self.total_speed / self.speed_samples
 
         weight = 70  # Waga w kg
-        met = self.met_values.get(self.workout_type, 8)  # Średni MET dla biegania
+        met = self.met_values.get(self.workout_type, 8)
         time_in_minutes = elapsed_time / 60
         calories_burned = time_in_minutes * met * weight * 0.0175
         hydration_needed = time_in_minutes * 0.03
         elevation_gain = random.random() * 100
 
         if self.unit_system == 'imperial':
-            distance = self.distance * 0.621371  # Convert km to miles
-            current_speed = current_speed * 0.621371  # Convert km/h to mph
-            max_speed = self.max_speed * 0.621371  # Convert km/h to mph
-            avg_speed = avg_speed * 0.621371  # Convert km/h to mph
-            elevation_gain = elevation_gain * 3.28084  # Convert meters to feet
+            distance = self.distance * 0.621371
+            current_speed = current_speed * 0.621371
+            max_speed = self.max_speed * 0.621371
+            avg_speed = avg_speed * 0.621371
+            elevation_gain = elevation_gain * 3.28084
         else:
             distance = self.distance
             max_speed = self.max_speed
@@ -263,8 +263,8 @@ class WorkoutDetailsScreen(Screen):
         self.update_path_layer()
 
     def get_random_location(self):
-        base_lat, base_lon = 52.22977, 21.01178  # Example base location
-        lat = base_lat + random.uniform(-0.001, 0.001)  # smaller range for more realistic simulation
+        base_lat, base_lon = 52.22977, 21.01178
+        lat = base_lat + random.uniform(-0.001, 0.001)
         lon = base_lon + random.uniform(-0.001, 0.001)
         return lat, lon
 
@@ -279,9 +279,9 @@ class WorkoutDetailsScreen(Screen):
                         "coordinates": self.path_coordinates
                     },
                     "properties": {
-                        "stroke": "#1E90FF",  # Niebieski kolor
-                        "stroke-width": 2,  # Domyślna szerokość linii
-                        "stroke-opacity": 1  # Pełna nieprzezroczystość
+                        "stroke": "#1E90FF",
+                        "stroke-width": 2,
+                        "stroke-opacity": 1
                     }
                 }
             ]

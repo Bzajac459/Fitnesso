@@ -47,7 +47,7 @@ class HistoryScreen(MDScreen):
         self.add_widget(layout)
 
         self.selected_workouts = []
-        self.history = []  # Initialize history attribute
+        self.history = []
         self.load_history()
 
     def on_pre_enter(self):

@@ -17,7 +17,7 @@ from screens import (
 class FitnessApp(MDApp):
     def build(self):
         sm = MDScreenManager()
-        sm.unit_system = 'metric'  # Default unit system
+        sm.unit_system = 'metric'
         sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(RegisterScreen(name='register'))
         sm.add_widget(MainMenuScreen(name='main_menu'))
