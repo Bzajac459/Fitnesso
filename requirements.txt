@@ -1,0 +1,7 @@
+kivy==2.1.0
+kivymd==0.104.2
+kivy-garden==0.1.4
+kivy-garden.mapview==1.0.8
+plyer==2.0.0
+pillow==9.0.1
+requests==2.27.1
