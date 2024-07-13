@@ -12,9 +12,25 @@ from kivy.metrics import dp
 from kivymd.uix.selectioncontrol import MDCheckbox
 from translation_manager import translation_manager
 
-
 class HistoryScreen(MDScreen):
+    """
+    Ekran historii treningów aplikacji.
+
+    Attributes:
+        back_button (MDRaisedButton): Przycisk powrotu do głównego menu.
+        filter_buttons (list): Lista przycisków do filtrowania historii.
+        list_view (MDList): Widok listy historii treningów.
+        selected_workouts (list): Lista wybranych treningów.
+        history (list): Lista wszystkich treningów.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran historii treningów.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(HistoryScreen, self).__init__(**kwargs)
 
         layout = MDBoxLayout(orientation='vertical')
@@ -51,13 +67,25 @@ class HistoryScreen(MDScreen):
         self.load_history()
 
     def on_pre_enter(self):
+        """
+        Ładuje historię treningów przed wejściem na ekran.
+        """
         super().on_pre_enter()
         self.load_history()
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do głównego menu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'main_menu'
 
     def load_history(self):
+        """
+        Ładuje historię treningów z pliku.
+        """
         self.list_view.clear_widgets()
         if not os.path.exists('workout_history.json'):
             return
@@ -69,10 +97,22 @@ class HistoryScreen(MDScreen):
             self.add_workout_to_list(workout)
 
     def add_workout_to_list(self, workout):
+        """
+        Dodaje trening do widoku listy.
+
+        Args:
+            workout (dict): Dane treningu.
+        """
         item = WorkoutListItem(workout=workout, screen=self)
         self.list_view.add_widget(item)
 
     def show_workout_details(self, workout):
+        """
+        Wyświetla szczegóły wybranego treningu.
+
+        Args:
+            workout (dict): Dane treningu.
+        """
         workout_details = (
             f"{translation_manager.get_translation('type')}: {workout['type']}\n"
             f"{translation_manager.get_translation('time')}: {workout['time']} s\n"
@@ -98,6 +138,12 @@ class HistoryScreen(MDScreen):
         dialog.open()
 
     def filter_history(self, period):
+        """
+        Filtruje historię treningów według podanego okresu.
+
+        Args:
+            period (str): Okres filtrowania ('week', 'month', 'year', 'all').
+        """
         filtered_history = []
         now = datetime.now()
 
@@ -115,20 +161,48 @@ class HistoryScreen(MDScreen):
             self.add_workout_to_list(workout)
 
     def delete_selected_workouts(self, instance):
+        """
+        Usuwa wybrane treningi z historii.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.history = [w for w in self.history if w not in self.selected_workouts]
         with open('workout_history.json', 'w') as f:
             json.dump(self.history, f, indent=4)
         self.load_history()
 
     def toggle_select_workout(self, workout):
+        """
+        Zaznacza lub odznacza trening w historii.
+
+        Args:
+            workout (dict): Dane treningu.
+        """
         if workout in self.selected_workouts:
             self.selected_workouts.remove(workout)
         else:
             self.selected_workouts.append(workout)
 
-
 class WorkoutListItem(ThreeLineAvatarIconListItem):
+    """
+    Element listy treningów w historii.
+
+    Attributes:
+        workout (dict): Dane treningu.
+        screen (HistoryScreen): Instancja ekranu historii.
+        checkbox (WorkoutCheckbox): Checkbox do zaznaczania treningu.
+    """
+
     def __init__(self, workout, screen, **kwargs):
+        """
+        Inicjalizuje element listy treningów.
+
+        Args:
+            workout (dict): Dane treningu.
+            screen (HistoryScreen): Instancja ekranu historii.
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super().__init__(**kwargs)
         self.workout = workout
         self.screen = screen
@@ -140,15 +214,38 @@ class WorkoutListItem(ThreeLineAvatarIconListItem):
         self.add_widget(self.checkbox)
 
     def on_release(self):
+        """
+        Wyświetla szczegóły treningu po kliknięciu na element listy.
+        """
         if not self.checkbox.active:
             self.screen.show_workout_details(self.workout)
 
-
 class WorkoutCheckbox(ILeftBody, MDCheckbox):
+    """
+    Checkbox do zaznaczania treningów w historii.
+
+    Attributes:
+        list_item (WorkoutListItem): Element listy treningów.
+    """
+
     def __init__(self, list_item, **kwargs):
+        """
+        Inicjalizuje checkbox.
+
+        Args:
+            list_item (WorkoutListItem): Element listy treningów.
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super().__init__(**kwargs)
         self.list_item = list_item
         self.bind(active=self.on_checkbox_active)
 
     def on_checkbox_active(self, checkbox, value):
+        """
+        Obsługuje zmianę stanu checkboxa.
+
+        Args:
+            checkbox (MDCheckbox): Instancja checkboxa.
+            value (bool): Nowy stan checkboxa.
+        """
         self.list_item.screen.toggle_select_workout(self.list_item.workout)

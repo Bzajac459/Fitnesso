@@ -17,8 +17,27 @@ import platform
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 
+
 class StatRow(MDBoxLayout):
+    """
+    Rząd statystyk w aplikacji fitness.
+
+    Attributes:
+        icon (MDIconButton): Ikona statystyki.
+        label (MDLabel): Etykieta statystyki.
+        value (MDLabel): Wartość statystyki.
+    """
+
     def __init__(self, icon, label_text, value_text, **kwargs):
+        """
+        Inicjalizuje rząd statystyk.
+
+        Args:
+            icon (str): Ikona statystyki.
+            label_text (str): Tekst etykiety statystyki.
+            value_text (str): Wartość statystyki.
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super().__init__(**kwargs)
         self.orientation = 'horizontal'
         self.spacing = 10
@@ -33,8 +52,42 @@ class StatRow(MDBoxLayout):
         self.add_widget(self.label)
         self.add_widget(self.value)
 
+
 class WorkoutDetailsScreen(Screen):
+    """
+    Ekran szczegółów treningu w aplikacji fitness.
+
+    Attributes:
+        layout (MDBoxLayout): Główny layout ekranu.
+        unit_system (str): Aktualnie ustawiony system jednostek.
+        map_view (MapView): Widok mapy.
+        path_layer (GeoJsonMapLayer): Warstwa ścieżki na mapie.
+        stats_layout (GridLayout): Layout statystyk.
+        start_button (MDIconButton): Przycisk rozpoczęcia treningu.
+        stop_button (MDIconButton): Przycisk zatrzymania treningu.
+        cancel_button (MDIconButton): Przycisk anulowania treningu.
+        end_button (MDIconButton): Przycisk zakończenia treningu.
+        back_button (MDIconButton): Przycisk powrotu do poprzedniego ekranu.
+        timer (Clock): Timer do aktualizacji statystyk.
+        start_time (float): Czas rozpoczęcia treningu.
+        elapsed_time (float): Upłynięty czas treningu.
+        workout_type (str): Typ treningu.
+        distance (float): Przebyty dystans.
+        max_speed (float): Maksymalna prędkość.
+        total_speed (float): Łączna prędkość.
+        speed_samples (int): Liczba próbek prędkości.
+        map_marker (MapMarker): Znacznik na mapie.
+        path_coordinates (list): Lista współrzędnych ścieżki.
+        met_values (dict): Słownik wartości MET dla różnych typów treningów.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran szczegółów treningu.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super().__init__(**kwargs)
         self.layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -145,15 +198,33 @@ class WorkoutDetailsScreen(Screen):
             gps.start(minTime=1000, minDistance=0)
 
     def on_pre_enter(self, *args):
+        """
+        Aktualizuje system jednostek przed wejściem na ekran.
+
+        Args:
+            *args: Argumenty przekazane do metody.
+        """
         super().on_pre_enter(*args)
         self.unit_system = self.manager.unit_system
 
     def start_workout(self, workout_type):
+        """
+        Rozpoczyna trening o podanym typie.
+
+        Args:
+            workout_type (str): Typ treningu.
+        """
         self.workout_type = workout_type
         self.type_row.value.text = workout_type
         self.update_stats(0)
 
     def start_timer(self, instance):
+        """
+        Rozpoczyna timer do aktualizacji statystyk.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.start_button.disabled = True
         self.stop_button.disabled = False
         self.cancel_button.disabled = False
@@ -162,6 +233,12 @@ class WorkoutDetailsScreen(Screen):
         self.timer = Clock.schedule_interval(self.update_stats, 1)
 
     def stop_timer(self, instance):
+        """
+        Zatrzymuje timer do aktualizacji statystyk.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         if self.timer:
             self.timer.cancel()
             self.timer = None
@@ -171,14 +248,29 @@ class WorkoutDetailsScreen(Screen):
         self.end_button.disabled = True
 
     def cancel_workout(self, instance):
+        """
+        Anuluje trening i resetuje statystyki.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.stop_timer(instance)
         self.reset_stats()
 
     def end_workout(self, instance):
+        """
+        Kończy trening i wyświetla dialog zapisu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.stop_timer(instance)
         self.show_save_dialog()
 
     def show_save_dialog(self):
+        """
+        Wyświetla dialog zapisu treningu.
+        """
         self.dialog = MDDialog(
             title="Save Workout",
             text="Do you want to save this workout?",
@@ -196,15 +288,33 @@ class WorkoutDetailsScreen(Screen):
         self.dialog.open()
 
     def dismiss_dialog(self, *args):
+        """
+        Zamyka dialog.
+
+        Args:
+            *args: Argumenty przekazane do metody.
+        """
         self.dialog.dismiss()
 
     def save_and_end_workout(self, instance):
+        """
+        Zapisuje trening i kończy go.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.save_workout()
         self.dismiss_dialog()
         self.reset_stats()
         self.manager.current = 'history'
 
     def update_stats(self, dt):
+        """
+        Aktualizuje statystyki treningu.
+
+        Args:
+            dt (float): Upłynięty czas od ostatniego wywołania.
+        """
         elapsed_time = Clock.get_boottime() - self.start_time
         self.elapsed_time = elapsed_time
         self.time_row.value.text = f'{int(elapsed_time)} s'
@@ -231,7 +341,7 @@ class WorkoutDetailsScreen(Screen):
         else:
             distance = self.distance
             max_speed = self.max_speed
-            avg_speed = avg_speed
+            avg_speed = self.avg_speed
 
         self.distance_row.value.text = f'{distance:.2f} {"mi" if self.unit_system == "imperial" else "km"}'
         self.current_speed_row.value.text = f'{current_speed:.2f} {"mph" if self.unit_system == "imperial" else "km/h"}'
@@ -252,6 +362,12 @@ class WorkoutDetailsScreen(Screen):
             self.update_path_layer()
 
     def update_gps_location(self, **kwargs):
+        """
+        Aktualizuje lokalizację GPS.
+
+        Args:
+            **kwargs: Argumenty lokalizacji GPS.
+        """
         lat = kwargs['lat']
         lon = kwargs['lon']
         if self.map_marker:
@@ -263,12 +379,21 @@ class WorkoutDetailsScreen(Screen):
         self.update_path_layer()
 
     def get_random_location(self):
+        """
+        Generuje losową lokalizację.
+
+        Returns:
+            tuple: Współrzędne losowej lokalizacji.
+        """
         base_lat, base_lon = 52.22977, 21.01178
         lat = base_lat + random.uniform(-0.001, 0.001)
         lon = base_lon + random.uniform(-0.001, 0.001)
         return lat, lon
 
     def update_path_layer(self):
+        """
+        Aktualizuje warstwę ścieżki na mapie.
+        """
         geojson = {
             "type": "FeatureCollection",
             "features": [
@@ -289,13 +414,16 @@ class WorkoutDetailsScreen(Screen):
         self.path_layer.geojson = geojson
 
     def save_workout(self):
+        """
+        Zapisuje trening do pliku.
+        """
         workout_data = {
             "type": self.workout_type,
             "time": int(self.elapsed_time),
             "distance": f'{self.distance:.2f}',
             "calories_burned": f'{float(self.calories_row.value.text.split()[0]):.2f}',
-            "avg_speed": f'{float(self.avg_speed_row.value.text.split()[0]):.2f}',
-            "max_speed": f'{float(self.max_speed_row.value.text.split()[0]):.2f}',
+            "avg_speed": f'{float(self.avg_speed_row.value.text.split()[0])::.2f}',
+            "max_speed": f'{float(self.max_speed_row.value.text.split()[0])::.2f}',
             "elevation_gain": f'{float(self.elevation_row.value.text.split()[0]):.2f}',
             "hydration_needed": f'{float(self.hydration_row.value.text.split()[0]):.2f}',
             "path_coordinates": self.path_coordinates,
@@ -314,6 +442,9 @@ class WorkoutDetailsScreen(Screen):
             json.dump(history, f, indent=4)
 
     def reset_stats(self):
+        """
+        Resetuje statystyki treningu.
+        """
         self.type_row.value.text = ""
         self.time_row.value.text = "0 s"
         self.distance_row.value.text = ""
@@ -328,4 +459,10 @@ class WorkoutDetailsScreen(Screen):
         self.update_path_layer()
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do ekranu wyboru typu treningu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'workout_type'

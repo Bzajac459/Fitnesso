@@ -5,8 +5,22 @@ from kivymd.uix.button import MDRaisedButton
 from kivy.metrics import dp
 from translation_manager import translation_manager
 
+
 class WorkoutScreen(MDScreen):
+    """
+    Ekran treningu w aplikacji fitness.
+
+    Attributes:
+        layout (MDBoxLayout): Główny layout ekranu.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran treningu.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(WorkoutScreen, self).__init__(**kwargs)
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -31,4 +45,10 @@ class WorkoutScreen(MDScreen):
         self.add_widget(layout)
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do głównego menu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'main_menu'

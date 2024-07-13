@@ -7,8 +7,25 @@ import os
 import json
 from translation_manager import translation_manager
 
+
 class RegisterScreen(MDScreen):
+    """
+    Ekran rejestracji dla aplikacji fitness.
+
+    Attributes:
+        username (MDTextField): Pole tekstowe do wprowadzenia nazwy użytkownika.
+        email (MDTextField): Pole tekstowe do wprowadzenia adresu email.
+        password (MDTextField): Pole tekstowe do wprowadzenia hasła.
+        confirm_password (MDTextField): Pole tekstowe do potwierdzenia hasła.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran rejestracji.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(RegisterScreen, self).__init__(**kwargs)
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -41,17 +58,25 @@ class RegisterScreen(MDScreen):
         self.add_widget(layout)
 
     def register(self, instance):
+        """
+        Obsługuje proces rejestracji nowego użytkownika.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         username = self.username.text
         email = self.email.text
         password = self.password.text
         confirm_password = self.confirm_password.text
 
         if not username or not email or not password or not confirm_password:
-            self.show_dialog(translation_manager.get_translation("error"), translation_manager.get_translation("all_fields_required"))
+            self.show_dialog(translation_manager.get_translation("error"),
+                             translation_manager.get_translation("all_fields_required"))
             return
 
         if password != confirm_password:
-            self.show_dialog(translation_manager.get_translation("error"), translation_manager.get_translation("passwords_do_not_match"))
+            self.show_dialog(translation_manager.get_translation("error"),
+                             translation_manager.get_translation("passwords_do_not_match"))
             return
 
         if not os.path.exists('users.json'):
@@ -61,7 +86,8 @@ class RegisterScreen(MDScreen):
                 users = json.load(f)
 
         if email in users:
-            self.show_dialog(translation_manager.get_translation("error"), translation_manager.get_translation("email_already_exists"))
+            self.show_dialog(translation_manager.get_translation("error"),
+                             translation_manager.get_translation("email_already_exists"))
             return
 
         users[email] = {'password': password, 'username': username}
@@ -69,13 +95,27 @@ class RegisterScreen(MDScreen):
         with open('users.json', 'w') as f:
             json.dump(users, f)
 
-        self.show_dialog(translation_manager.get_translation("success"), translation_manager.get_translation("registration_successful"))
+        self.show_dialog(translation_manager.get_translation("success"),
+                         translation_manager.get_translation("registration_successful"))
         self.manager.current = 'login'
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do ekranu logowania.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'login'
 
     def show_dialog(self, title, message):
+        """
+        Wyświetla dialog z podanym tytułem i wiadomością.
+
+        Args:
+            title (str): Tytuł dialogu.
+            message (str): Treść wiadomości w dialogu.
+        """
         dialog = MDDialog(
             title=title,
             text=message,

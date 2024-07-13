@@ -15,7 +15,17 @@ from screens import (
 )
 
 class FitnessApp(MDApp):
+    """
+    Główna klasa aplikacji FitnessApp, która zarządza ekranami i stanem aplikacji.
+    """
+
     def build(self):
+        """
+        Tworzy i zwraca główny menedżer ekranów aplikacji.
+
+        Returns:
+            MDScreenManager: Menedżer ekranów.
+        """
         sm = MDScreenManager()
         sm.unit_system = 'metric'
         sm.add_widget(LoginScreen(name='login'))

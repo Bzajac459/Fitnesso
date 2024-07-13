@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>screens.workout_details_screen &#8212; Fitnesso 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for screens.workout_details_screen</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">kivy.uix.screenmanager</span> <span class="kn">import</span> <span class="n">Screen</span>
+<span class="kn">from</span> <span class="nn">kivy.uix.gridlayout</span> <span class="kn">import</span> <span class="n">GridLayout</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.label</span> <span class="kn">import</span> <span class="n">MDLabel</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.button</span> <span class="kn">import</span> <span class="n">MDIconButton</span><span class="p">,</span> <span class="n">MDRaisedButton</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.boxlayout</span> <span class="kn">import</span> <span class="n">MDBoxLayout</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.scrollview</span> <span class="kn">import</span> <span class="n">MDScrollView</span>
+<span class="kn">from</span> <span class="nn">kivy.metrics</span> <span class="kn">import</span> <span class="n">dp</span>
+<span class="kn">from</span> <span class="nn">kivy.clock</span> <span class="kn">import</span> <span class="n">Clock</span>
+<span class="kn">from</span> <span class="nn">kivy_garden.mapview</span> <span class="kn">import</span> <span class="n">MapView</span><span class="p">,</span> <span class="n">MapMarker</span>
+<span class="kn">from</span> <span class="nn">kivy_garden.mapview.geojson</span> <span class="kn">import</span> <span class="n">GeoJsonMapLayer</span>
+<span class="kn">from</span> <span class="nn">plyer</span> <span class="kn">import</span> <span class="n">gps</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.dialog</span> <span class="kn">import</span> <span class="n">MDDialog</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.button</span> <span class="kn">import</span> <span class="n">MDFlatButton</span>
+
+
+<div class="viewcode-block" id="StatRow">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.StatRow">[docs]</a>
+<span class="k">class</span> <span class="nc">StatRow</span><span class="p">(</span><span class="n">MDBoxLayout</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rząd statystyk w aplikacji fitness.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        icon (MDIconButton): Ikona statystyki.</span>
+<span class="sd">        label (MDLabel): Etykieta statystyki.</span>
+<span class="sd">        value (MDLabel): Wartość statystyki.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">icon</span><span class="p">,</span> <span class="n">label_text</span><span class="p">,</span> <span class="n">value_text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inicjalizuje rząd statystyk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            icon (str): Ikona statystyki.</span>
+<span class="sd">            label_text (str): Tekst etykiety statystyki.</span>
+<span class="sd">            value_text (str): Wartość statystyki.</span>
+<span class="sd">            **kwargs: Słownik argumentów przekazanych do konstruktora.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;horizontal&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spacing</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size_hint</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">dp</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">MDIconButton</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="n">icon</span><span class="p">,</span> <span class="n">icon_size</span><span class="o">=</span><span class="s1">&#39;24sp&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">MDLabel</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">label_text</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">MDLabel</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">value_text</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen">[docs]</a>
+<span class="k">class</span> <span class="nc">WorkoutDetailsScreen</span><span class="p">(</span><span class="n">Screen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ekran szczegółów treningu w aplikacji fitness.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        layout (MDBoxLayout): Główny layout ekranu.</span>
+<span class="sd">        unit_system (str): Aktualnie ustawiony system jednostek.</span>
+<span class="sd">        map_view (MapView): Widok mapy.</span>
+<span class="sd">        path_layer (GeoJsonMapLayer): Warstwa ścieżki na mapie.</span>
+<span class="sd">        stats_layout (GridLayout): Layout statystyk.</span>
+<span class="sd">        start_button (MDIconButton): Przycisk rozpoczęcia treningu.</span>
+<span class="sd">        stop_button (MDIconButton): Przycisk zatrzymania treningu.</span>
+<span class="sd">        cancel_button (MDIconButton): Przycisk anulowania treningu.</span>
+<span class="sd">        end_button (MDIconButton): Przycisk zakończenia treningu.</span>
+<span class="sd">        back_button (MDIconButton): Przycisk powrotu do poprzedniego ekranu.</span>
+<span class="sd">        timer (Clock): Timer do aktualizacji statystyk.</span>
+<span class="sd">        start_time (float): Czas rozpoczęcia treningu.</span>
+<span class="sd">        elapsed_time (float): Upłynięty czas treningu.</span>
+<span class="sd">        workout_type (str): Typ treningu.</span>
+<span class="sd">        distance (float): Przebyty dystans.</span>
+<span class="sd">        max_speed (float): Maksymalna prędkość.</span>
+<span class="sd">        total_speed (float): Łączna prędkość.</span>
+<span class="sd">        speed_samples (int): Liczba próbek prędkości.</span>
+<span class="sd">        map_marker (MapMarker): Znacznik na mapie.</span>
+<span class="sd">        path_coordinates (list): Lista współrzędnych ścieżki.</span>
+<span class="sd">        met_values (dict): Słownik wartości MET dla różnych typów treningów.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inicjalizuje ekran szczegółów treningu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Słownik argumentów przekazanych do konstruktora.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">MDBoxLayout</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span> <span class="o">=</span> <span class="s1">&#39;metric&#39;</span>  <span class="c1"># Default unit system, will be updated later</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_view</span> <span class="o">=</span> <span class="n">MapView</span><span class="p">(</span><span class="n">zoom</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">52.22977</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="mf">21.01178</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">dp</span><span class="p">(</span><span class="mi">300</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_layer</span> <span class="o">=</span> <span class="n">GeoJsonMapLayer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_view</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layer</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_view</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span> <span class="o">=</span> <span class="n">GridLayout</span><span class="p">(</span><span class="n">cols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;Walk&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;clock-outline&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0 s&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;map-marker-distance&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Distance&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 km&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elevation_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;image-filter-hdr&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Elevation Gain&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 m&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;speedometer&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Max Speed&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 km/h&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_speed_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;speedometer&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Current Speed&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 km/h&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_speed_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;speedometer-medium&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Avg Speed&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 km/h&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calories_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;fire&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Calories Burned&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 kcal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydration_row</span> <span class="o">=</span> <span class="n">StatRow</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;cup-water&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s1">&#39;Hydration Needed&#39;</span><span class="p">,</span> <span class="n">value_text</span><span class="o">=</span><span class="s1">&#39;0.00 L&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elevation_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_speed_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_speed_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_speed_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calories_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hydration_row</span><span class="p">)</span>
+
+        <span class="n">scroll_view</span> <span class="o">=</span> <span class="n">MDScrollView</span><span class="p">(</span><span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">scroll_view</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_layout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="n">scroll_view</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_button</span> <span class="o">=</span> <span class="n">MDIconButton</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;play-circle&#39;</span><span class="p">,</span>
+            <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">)),</span>
+            <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_timer</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_button</span> <span class="o">=</span> <span class="n">MDIconButton</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;stop-circle&#39;</span><span class="p">,</span>
+            <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">)),</span>
+            <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_timer</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span> <span class="o">=</span> <span class="n">MDIconButton</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;cancel&#39;</span><span class="p">,</span>
+            <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">)),</span>
+            <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_workout</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_button</span> <span class="o">=</span> <span class="n">MDIconButton</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;check-circle&#39;</span><span class="p">,</span>
+            <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">)),</span>
+            <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">end_workout</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">back_button</span> <span class="o">=</span> <span class="n">MDIconButton</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;arrow-left-circle&#39;</span><span class="p">,</span>
+            <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">dp</span><span class="p">(</span><span class="mi">50</span><span class="p">)),</span>
+            <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">go_back</span>
+        <span class="p">)</span>
+
+        <span class="n">button_layout</span> <span class="o">=</span> <span class="n">MDBoxLayout</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">dp</span><span class="p">(</span><span class="mi">60</span><span class="p">),</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                    <span class="n">padding</span><span class="o">=</span><span class="n">dp</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+        <span class="n">button_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_button</span><span class="p">)</span>
+        <span class="n">button_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_button</span><span class="p">)</span>
+        <span class="n">button_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="p">)</span>
+        <span class="n">button_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_button</span><span class="p">)</span>
+        <span class="n">button_layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">back_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="n">button_layout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workout_type</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_speed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_samples</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_coordinates</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">met_values</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Walk&#39;</span><span class="p">:</span> <span class="mf">3.8</span><span class="p">,</span>
+            <span class="s1">&#39;Run&#39;</span><span class="p">:</span> <span class="mf">7.5</span><span class="p">,</span>
+            <span class="s1">&#39;Bike&#39;</span><span class="p">:</span> <span class="mf">7.5</span><span class="p">,</span>
+            <span class="s1">&#39;Roller Skate&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
+            <span class="s1">&#39;Hiking&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+            <span class="s1">&#39;Scooter&#39;</span><span class="p">:</span> <span class="mf">4.0</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Darwin&#39;</span><span class="p">,</span> <span class="s1">&#39;Linux&#39;</span><span class="p">]:</span>
+            <span class="n">gps</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">on_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">update_gps_location</span><span class="p">)</span>
+            <span class="n">gps</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">minTime</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">minDistance</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.on_pre_enter">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.on_pre_enter">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_pre_enter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Aktualizuje system jednostek przed wejściem na ekran.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args: Argumenty przekazane do metody.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">on_pre_enter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">unit_system</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.start_workout">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.start_workout">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_workout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workout_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rozpoczyna trening o podanym typie.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            workout_type (str): Typ treningu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workout_type</span> <span class="o">=</span> <span class="n">workout_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">workout_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stats</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.start_timer">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.start_timer">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rozpoczyna timer do aktualizacji statystyk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">Clock</span><span class="o">.</span><span class="n">get_boottime</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">Clock</span><span class="o">.</span><span class="n">schedule_interval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_stats</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.stop_timer">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.stop_timer">[docs]</a>
+    <span class="k">def</span> <span class="nf">stop_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zatrzymuje timer do aktualizacji statystyk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_button</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.cancel_workout">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.cancel_workout">[docs]</a>
+    <span class="k">def</span> <span class="nf">cancel_workout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Anuluje trening i resetuje statystyki.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_timer</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_stats</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.end_workout">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.end_workout">[docs]</a>
+    <span class="k">def</span> <span class="nf">end_workout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Kończy trening i wyświetla dialog zapisu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_timer</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_save_dialog</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.show_save_dialog">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.show_save_dialog">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_save_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wyświetla dialog zapisu treningu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span> <span class="o">=</span> <span class="n">MDDialog</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Save Workout&quot;</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Do you want to save this workout?&quot;</span><span class="p">,</span>
+            <span class="n">buttons</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">MDFlatButton</span><span class="p">(</span>
+                    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;CANCEL&quot;</span><span class="p">,</span>
+                    <span class="n">on_release</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dismiss_dialog</span>
+                <span class="p">),</span>
+                <span class="n">MDRaisedButton</span><span class="p">(</span>
+                    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SAVE&quot;</span><span class="p">,</span>
+                    <span class="n">on_release</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_and_end_workout</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">open</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.dismiss_dialog">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.dismiss_dialog">[docs]</a>
+    <span class="k">def</span> <span class="nf">dismiss_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zamyka dialog.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args: Argumenty przekazane do metody.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">dismiss</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.save_and_end_workout">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.save_and_end_workout">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_and_end_workout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zapisuje trening i kończy go.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_workout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dismiss_dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_stats</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="s1">&#39;history&#39;</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.update_stats">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.update_stats">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Aktualizuje statystyki treningu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dt (float): Upłynięty czas od ostatniego wywołania.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">Clock</span><span class="o">.</span><span class="n">get_boottime</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">elapsed_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span><span class="si">}</span><span class="s1"> s&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">+=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">current_speed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span><span class="p">,</span> <span class="n">current_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_speed</span> <span class="o">+=</span> <span class="n">current_speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_samples</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">avg_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_speed</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_samples</span>
+
+        <span class="n">weight</span> <span class="o">=</span> <span class="mi">70</span>  <span class="c1"># Waga w kg</span>
+        <span class="n">met</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">met_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workout_type</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">time_in_minutes</span> <span class="o">=</span> <span class="n">elapsed_time</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">calories_burned</span> <span class="o">=</span> <span class="n">time_in_minutes</span> <span class="o">*</span> <span class="n">met</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">*</span> <span class="mf">0.0175</span>
+        <span class="n">hydration_needed</span> <span class="o">=</span> <span class="n">time_in_minutes</span> <span class="o">*</span> <span class="mf">0.03</span>
+        <span class="n">elevation_gain</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span> <span class="o">==</span> <span class="s1">&#39;imperial&#39;</span><span class="p">:</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">*</span> <span class="mf">0.621371</span>
+            <span class="n">current_speed</span> <span class="o">=</span> <span class="n">current_speed</span> <span class="o">*</span> <span class="mf">0.621371</span>
+            <span class="n">max_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="o">*</span> <span class="mf">0.621371</span>
+            <span class="n">avg_speed</span> <span class="o">=</span> <span class="n">avg_speed</span> <span class="o">*</span> <span class="mf">0.621371</span>
+            <span class="n">elevation_gain</span> <span class="o">=</span> <span class="n">elevation_gain</span> <span class="o">*</span> <span class="mf">3.28084</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">max_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span>
+            <span class="n">avg_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_speed</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">distance</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;mi&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;imperial&quot;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;km&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_speed</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;mph&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;imperial&quot;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;km/h&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_speed</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;mph&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;imperial&quot;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;km/h&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">avg_speed</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;mph&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;imperial&quot;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;km/h&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calories_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">calories_burned</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> kcal&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydration_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">hydration_needed</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> L&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elevation_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">elevation_gain</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;ft&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">unit_system</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;imperial&quot;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;m&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Windows&#39;</span><span class="p">:</span>
+            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_location</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">map_view</span><span class="o">.</span><span class="n">remove_marker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span> <span class="o">=</span> <span class="n">MapMarker</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_view</span><span class="o">.</span><span class="n">add_marker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_path_layer</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.update_gps_location">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.update_gps_location">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_gps_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Aktualizuje lokalizację GPS.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Argumenty lokalizacji GPS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_view</span><span class="o">.</span><span class="n">remove_marker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span> <span class="o">=</span> <span class="n">MapMarker</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_view</span><span class="o">.</span><span class="n">add_marker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_path_layer</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.get_random_location">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.get_random_location">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_random_location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generuje losową lokalizację.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Współrzędne losowej lokalizacji.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_lat</span><span class="p">,</span> <span class="n">base_lon</span> <span class="o">=</span> <span class="mf">52.22977</span><span class="p">,</span> <span class="mf">21.01178</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">base_lat</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">base_lon</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.update_path_layer">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.update_path_layer">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_path_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Aktualizuje warstwę ścieżki na mapie.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">geojson</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;LineString&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_coordinates</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;stroke&quot;</span><span class="p">:</span> <span class="s2">&quot;#1E90FF&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;stroke-width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="s2">&quot;stroke-opacity&quot;</span><span class="p">:</span> <span class="mi">1</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_layer</span><span class="o">.</span><span class="n">geojson</span> <span class="o">=</span> <span class="n">geojson</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.save_workout">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.save_workout">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_workout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zapisuje trening do pliku.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">workout_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">workout_type</span><span class="p">,</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">),</span>
+            <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;calories_burned&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calories_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;avg_speed&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s1">:.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;max_speed&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s1">:.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;elevation_gain&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elevation_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;hydration_needed&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hydration_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;path_coordinates&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_coordinates</span><span class="p">,</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;workout_history.json&#39;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;workout_history.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">history</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">workout_data</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;workout_history.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.reset_stats">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.reset_stats">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resetuje statystyki treningu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;0 s&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elevation_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_speed_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calories_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydration_row</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_marker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_coordinates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_path_layer</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WorkoutDetailsScreen.go_back">
+<a class="viewcode-back" href="../../screens.html#screens.workout_details_screen.WorkoutDetailsScreen.go_back">[docs]</a>
+    <span class="k">def</span> <span class="nf">go_back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Przenosi użytkownika do ekranu wyboru typu treningu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="s1">&#39;workout_type&#39;</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Fitnesso</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Bzajac.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

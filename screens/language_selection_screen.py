@@ -7,7 +7,21 @@ from kivy.metrics import dp
 from translation_manager import translation_manager
 
 class LanguageSelectionScreen(MDScreen):
+    """
+    Ekran wyboru języka aplikacji.
+
+    Attributes:
+        label (MDLabel): Etykieta wyboru języka.
+        menu (MDDropdownMenu): Menu wyboru języka.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran wyboru języka.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(LanguageSelectionScreen, self).__init__(**kwargs)
 
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
@@ -51,6 +65,12 @@ class LanguageSelectionScreen(MDScreen):
         self.add_widget(layout)
 
     def set_item(self, text_item):
+        """
+        Ustawia wybrany język aplikacji.
+
+        Args:
+            text_item (str): Nazwa wybranego języka.
+        """
         lang_code = 'en'
         if text_item == 'Spanish':
             lang_code = 'es'
@@ -66,4 +86,10 @@ class LanguageSelectionScreen(MDScreen):
         self.menu.dismiss()
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do ekranu ustawień.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'settings'

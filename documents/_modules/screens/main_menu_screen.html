@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>screens.main_menu_screen &#8212; Fitnesso 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for screens.main_menu_screen</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">kivymd.app</span> <span class="kn">import</span> <span class="n">MDApp</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.button</span> <span class="kn">import</span> <span class="n">MDRaisedButton</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.label</span> <span class="kn">import</span> <span class="n">MDLabel</span>
+<span class="kn">from</span> <span class="nn">kivymd.uix.screen</span> <span class="kn">import</span> <span class="n">MDScreen</span>
+<span class="kn">from</span> <span class="nn">kivy.uix.boxlayout</span> <span class="kn">import</span> <span class="n">BoxLayout</span>
+<span class="kn">from</span> <span class="nn">translation_manager</span> <span class="kn">import</span> <span class="n">translation_manager</span>
+
+
+<div class="viewcode-block" id="MainMenuScreen">
+<a class="viewcode-back" href="../../screens.html#screens.main_menu_screen.MainMenuScreen">[docs]</a>
+<span class="k">class</span> <span class="nc">MainMenuScreen</span><span class="p">(</span><span class="n">MDScreen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Główne menu aplikacji fitness.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        welcome_label (MDLabel): Etykieta powitalna.</span>
+<span class="sd">        start_workout_button (MDRaisedButton): Przycisk do rozpoczęcia treningu.</span>
+<span class="sd">        history_button (MDRaisedButton): Przycisk do przeglądania historii treningów.</span>
+<span class="sd">        settings_button (MDRaisedButton): Przycisk do otwierania ustawień.</span>
+<span class="sd">        exit_button (MDRaisedButton): Przycisk do wyjścia z aplikacji.</span>
+<span class="sd">        layout (BoxLayout): Główny layout ekranu menu.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inicjalizuje główne menu aplikacji.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Słownik argumentów przekazanych do konstruktora.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">BoxLayout</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_label</span> <span class="o">=</span> <span class="n">MDLabel</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">translation_manager</span><span class="o">.</span><span class="n">register_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">welcome_label</span><span class="p">,</span> <span class="s1">&#39;welcome&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_workout_button</span> <span class="o">=</span> <span class="n">MDRaisedButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">go_to_workout</span><span class="p">)</span>
+        <span class="n">translation_manager</span><span class="o">.</span><span class="n">register_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_workout_button</span><span class="p">,</span> <span class="s1">&#39;workout&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">history_button</span> <span class="o">=</span> <span class="n">MDRaisedButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">go_to_history</span><span class="p">)</span>
+        <span class="n">translation_manager</span><span class="o">.</span><span class="n">register_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history_button</span><span class="p">,</span> <span class="s1">&#39;history&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_button</span> <span class="o">=</span> <span class="n">MDRaisedButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">go_to_settings</span><span class="p">)</span>
+        <span class="n">translation_manager</span><span class="o">.</span><span class="n">register_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_button</span><span class="p">,</span> <span class="s1">&#39;settings&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_button</span> <span class="o">=</span> <span class="n">MDRaisedButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exit_app</span><span class="p">)</span>
+        <span class="n">translation_manager</span><span class="o">.</span><span class="n">register_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exit_button</span><span class="p">,</span> <span class="s1">&#39;exit&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">welcome_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_workout_button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history_button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exit_button</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MainMenuScreen.go_to_workout">
+<a class="viewcode-back" href="../../screens.html#screens.main_menu_screen.MainMenuScreen.go_to_workout">[docs]</a>
+    <span class="k">def</span> <span class="nf">go_to_workout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Przenosi użytkownika do ekranu wyboru typu treningu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="s1">&#39;workout_type&#39;</span></div>
+
+
+<div class="viewcode-block" id="MainMenuScreen.go_to_history">
+<a class="viewcode-back" href="../../screens.html#screens.main_menu_screen.MainMenuScreen.go_to_history">[docs]</a>
+    <span class="k">def</span> <span class="nf">go_to_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Przenosi użytkownika do ekranu historii treningów.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="s1">&#39;history&#39;</span></div>
+
+
+<div class="viewcode-block" id="MainMenuScreen.go_to_settings">
+<a class="viewcode-back" href="../../screens.html#screens.main_menu_screen.MainMenuScreen.go_to_settings">[docs]</a>
+    <span class="k">def</span> <span class="nf">go_to_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Przenosi użytkownika do ekranu ustawień.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="s1">&#39;settings&#39;</span></div>
+
+
+<div class="viewcode-block" id="MainMenuScreen.exit_app">
+<a class="viewcode-back" href="../../screens.html#screens.main_menu_screen.MainMenuScreen.exit_app">[docs]</a>
+    <span class="k">def</span> <span class="nf">exit_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zamyka aplikację.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance: Instancja wywołująca metodę.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">MDApp</span><span class="o">.</span><span class="n">get_running_app</span><span class="p">()</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Fitnesso</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Bzajac.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

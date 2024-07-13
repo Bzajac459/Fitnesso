@@ -6,8 +6,22 @@ from kivymd.uix.label import MDLabel
 from kivy.metrics import dp
 from translation_manager import translation_manager
 
+
 class UnitSelectionScreen(MDScreen):
+    """
+    Ekran wyboru jednostek dla aplikacji fitness.
+
+    Attributes:
+        unit_switch (MDSwitch): Przełącznik jednostek metrycznych i imperialnych.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran wyboru jednostek.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(UnitSelectionScreen, self).__init__(**kwargs)
 
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
@@ -34,9 +48,22 @@ class UnitSelectionScreen(MDScreen):
         self.add_widget(layout)
 
     def on_unit_switch_active(self, switch, value):
+        """
+        Obsługuje zmianę jednostek.
+
+        Args:
+            switch (MDSwitch): Przełącznik jednostek.
+            value (bool): Nowy stan przełącznika.
+        """
         unit = "imperial" if value else "metric"
         self.manager.unit_system = unit
         print(f"Selected unit: {unit}")
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do ekranu ustawień.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'settings'

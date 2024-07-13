@@ -1,14 +1,30 @@
+import os
+import json
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.dialog import MDDialog
-import os
-import json
 from translation_manager import translation_manager
 
+
 class LoginScreen(MDScreen):
+    """
+    Ekran logowania dla aplikacji fitness.
+
+    Attributes:
+        username (MDTextField): Pole tekstowe do wprowadzenia nazwy użytkownika.
+        password (MDTextField): Pole tekstowe do wprowadzenia hasła.
+        layout (MDBoxLayout): Główny layout ekranu logowania.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran logowania.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(LoginScreen, self).__init__(**kwargs)
         self.layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -43,6 +59,12 @@ class LoginScreen(MDScreen):
         self.add_widget(self.layout)
 
     def login(self, instance):
+        """
+        Obsługuje proces logowania użytkownika.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         username = self.username.text
         password = self.password.text
 
@@ -50,11 +72,13 @@ class LoginScreen(MDScreen):
             self.show_dialog("Error", "Username and Password are required!")
             return
 
-        if not os.path.exists('users.json'):
+        file_path = os.path.join(os.path.dirname(__file__), '..', 'users.json')
+
+        if not os.path.exists(file_path):
             self.show_dialog("Error", "Invalid username or password")
             return
 
-        with open('users.json', 'r') as f:
+        with open(file_path, 'r') as f:
             users = json.load(f)
 
         for user in users.values():
@@ -65,26 +89,43 @@ class LoginScreen(MDScreen):
         self.show_dialog("Error", "Invalid username or password")
 
     def go_to_register(self, instance):
+        """
+        Przekierowuje użytkownika do ekranu rejestracji.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'register'
 
     def go_to_password_reset(self, instance):
+        """
+        Przekierowuje użytkownika do ekranu resetowania hasła.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'password_reset'
 
     def skip_login(self, instance):
+        """
+        Pozwala użytkownikowi pominąć logowanie i przejść do głównego menu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'main_menu'
 
     def show_dialog(self, title, message):
+        """
+        Wyświetla dialog z podanym tytułem i wiadomością.
+
+        Args:
+            title (str): Tytuł dialogu.
+            message (str): Treść wiadomości w dialogu.
+        """
         dialog = MDDialog(
             title=title,
             text=message,
             buttons=[MDRaisedButton(text="Ok", on_press=lambda x: dialog.dismiss())]
         )
         dialog.open()
-
-    def update_texts(self, translations):
-        self.username.hint_text = translations['username']
-        self.password.hint_text = translations['password']
-        self.layout.children[5].text = translations['login']
-        self.layout.children[4].text = translations['register']
-        self.layout.children[3].text = translations['forgot_password']
-        self.layout.children[2].text = translations['skip_login']

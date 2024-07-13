@@ -7,7 +7,25 @@ from translation_manager import translation_manager
 
 
 class MainMenuScreen(MDScreen):
+    """
+    Główne menu aplikacji fitness.
+
+    Attributes:
+        welcome_label (MDLabel): Etykieta powitalna.
+        start_workout_button (MDRaisedButton): Przycisk do rozpoczęcia treningu.
+        history_button (MDRaisedButton): Przycisk do przeglądania historii treningów.
+        settings_button (MDRaisedButton): Przycisk do otwierania ustawień.
+        exit_button (MDRaisedButton): Przycisk do wyjścia z aplikacji.
+        layout (BoxLayout): Główny layout ekranu menu.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje główne menu aplikacji.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super().__init__(**kwargs)
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -33,21 +51,38 @@ class MainMenuScreen(MDScreen):
         self.layout.add_widget(self.exit_button)
         self.add_widget(self.layout)
 
-    def update_texts(self, translations):
-        self.welcome_label.text = translations['welcome']
-        self.start_workout_button.text = translations['workout']
-        self.history_button.text = translations['history']
-        self.settings_button.text = translations['settings']
-        self.exit_button.text = translations['exit']
-
     def go_to_workout(self, instance):
+        """
+        Przenosi użytkownika do ekranu wyboru typu treningu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'workout_type'
 
     def go_to_history(self, instance):
+        """
+        Przenosi użytkownika do ekranu historii treningów.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'history'
 
     def go_to_settings(self, instance):
+        """
+        Przenosi użytkownika do ekranu ustawień.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'settings'
 
     def exit_app(self, instance):
+        """
+        Zamyka aplikację.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         MDApp.get_running_app().stop()

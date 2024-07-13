@@ -4,8 +4,22 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.metrics import dp
 from translation_manager import translation_manager
 
+
 class WorkoutTypeScreen(MDScreen):
+    """
+    Ekran wyboru typu treningu w aplikacji fitness.
+
+    Attributes:
+        workout_buttons (list): Lista przycisków wyboru typu treningu.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran wyboru typu treningu.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(WorkoutTypeScreen, self).__init__(**kwargs)
 
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
@@ -36,8 +50,20 @@ class WorkoutTypeScreen(MDScreen):
         self.add_widget(layout)
 
     def start_workout(self, workout_type):
+        """
+        Rozpoczyna trening o podanym typie.
+
+        Args:
+            workout_type (str): Typ treningu.
+        """
         self.manager.get_screen('workout_details').start_workout(workout_type)
         self.manager.current = 'workout_details'
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do głównego menu.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'main_menu'

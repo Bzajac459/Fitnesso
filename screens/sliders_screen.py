@@ -8,8 +8,23 @@ import json
 import os
 from translation_manager import translation_manager
 
+
 class SlidersScreen(MDScreen):
+    """
+    Ekran dostosowania suwaków w aplikacji fitness.
+
+    Attributes:
+        weight_field (MDTextField): Pole tekstowe do wprowadzenia wagi.
+        height_field (MDTextField): Pole tekstowe do wprowadzenia wzrostu.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran dostosowania suwaków.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(SlidersScreen, self).__init__(**kwargs)
 
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
@@ -51,22 +66,29 @@ class SlidersScreen(MDScreen):
 
         self.add_widget(layout)
 
-        # Load data if it exists
         self.load_data()
 
     def save_data(self, instance):
+        """
+        Zapisuje dane wprowadzone przez użytkownika.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         weight = self.weight_field.text
         height = self.height_field.text
 
         if not weight or not height:
-            self.show_dialog(translation_manager.get_translation("error"), translation_manager.get_translation("both_fields_required"))
+            self.show_dialog(translation_manager.get_translation("error"),
+                             translation_manager.get_translation("both_fields_required"))
             return
 
         try:
             weight = float(weight)
             height = float(height)
         except ValueError:
-            self.show_dialog(translation_manager.get_translation("error"), translation_manager.get_translation("valid_numbers"))
+            self.show_dialog(translation_manager.get_translation("error"),
+                             translation_manager.get_translation("valid_numbers"))
             return
 
         data = {
@@ -77,9 +99,14 @@ class SlidersScreen(MDScreen):
         with open('user_data.json', 'w') as f:
             json.dump(data, f)
 
-        self.show_dialog(translation_manager.get_translation("success"), translation_manager.get_translation("data_saved"))
+        self.show_dialog(translation_manager.get_translation("success"),
+                         translation_manager.get_translation("data_saved"))
 
     def load_data(self):
+        """
+        Ładuje zapisane dane użytkownika.
+
+        """
         if os.path.exists('user_data.json'):
             with open('user_data.json', 'r') as f:
                 data = json.load(f)
@@ -87,6 +114,13 @@ class SlidersScreen(MDScreen):
                 self.height_field.text = str(data.get("height", ""))
 
     def show_dialog(self, title, text):
+        """
+        Wyświetla dialog z podanym tytułem i wiadomością.
+
+        Args:
+            title (str): Tytuł dialogu.
+            text (str): Treść wiadomości w dialogu.
+        """
         dialog = MDDialog(
             title=title,
             text=text,
@@ -100,4 +134,10 @@ class SlidersScreen(MDScreen):
         dialog.open()
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do ekranu ustawień.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'settings'

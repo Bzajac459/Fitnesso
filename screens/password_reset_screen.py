@@ -8,8 +8,22 @@ import os
 import json
 from translation_manager import translation_manager
 
+
 class PasswordResetScreen(MDScreen):
+    """
+    Ekran resetowania hasła dla aplikacji fitness.
+
+    Attributes:
+        email (MDTextField): Pole tekstowe do wprowadzenia adresu email.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Inicjalizuje ekran resetowania hasła.
+
+        Args:
+            **kwargs: Słownik argumentów przekazanych do konstruktora.
+        """
         super(PasswordResetScreen, self).__init__(**kwargs)
         layout = MDBoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -30,6 +44,12 @@ class PasswordResetScreen(MDScreen):
         self.add_widget(layout)
 
     def reset_password(self, instance):
+        """
+        Obsługuje proces resetowania hasła.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         email = self.email.text
         if not email:
             self.show_error_dialog(translation_manager.get_translation("email_empty"))
@@ -41,6 +61,15 @@ class PasswordResetScreen(MDScreen):
             self.show_error_dialog(translation_manager.get_translation("email_not_found"))
 
     def email_exists(self, email):
+        """
+        Sprawdza, czy podany email istnieje w bazie użytkowników.
+
+        Args:
+            email (str): Adres email użytkownika.
+
+        Returns:
+            bool: True jeśli email istnieje, False w przeciwnym razie.
+        """
         if not os.path.exists('users.json'):
             return False
         with open('users.json', 'r') as f:
@@ -48,9 +77,21 @@ class PasswordResetScreen(MDScreen):
         return email in users
 
     def go_back(self, instance):
+        """
+        Przenosi użytkownika do ekranu logowania.
+
+        Args:
+            instance: Instancja wywołująca metodę.
+        """
         self.manager.current = 'login'
 
     def show_error_dialog(self, message):
+        """
+        Wyświetla dialog błędu z podaną wiadomością.
+
+        Args:
+            message (str): Treść wiadomości błędu.
+        """
         dialog = MDDialog(
             text=message,
             buttons=[
@@ -63,6 +104,12 @@ class PasswordResetScreen(MDScreen):
         dialog.open()
 
     def show_message_dialog(self, message):
+        """
+        Wyświetla dialog z podaną wiadomością.
+
+        Args:
+            message (str): Treść wiadomości.
+        """
         dialog = MDDialog(
             text=message,
             buttons=[
