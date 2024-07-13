@@ -76,6 +76,7 @@ class WorkoutDetailsScreen(Screen):
         max_speed (float): Maksymalna prędkość.
         total_speed (float): Łączna prędkość.
         speed_samples (int): Liczba próbek prędkości.
+        avg_speed (float): Średnia prędkość.
         map_marker (MapMarker): Znacznik na mapie.
         path_coordinates (list): Lista współrzędnych ścieżki.
         met_values (dict): Słownik wartości MET dla różnych typów treningów.
@@ -181,6 +182,7 @@ class WorkoutDetailsScreen(Screen):
         self.max_speed = 0
         self.total_speed = 0
         self.speed_samples = 0
+        self.avg_speed = 0  # Dodano ten atrybut
         self.map_marker = None
         self.path_coordinates = []
 
@@ -422,8 +424,8 @@ class WorkoutDetailsScreen(Screen):
             "time": int(self.elapsed_time),
             "distance": f'{self.distance:.2f}',
             "calories_burned": f'{float(self.calories_row.value.text.split()[0]):.2f}',
-            "avg_speed": f'{float(self.avg_speed_row.value.text.split()[0])::.2f}',
-            "max_speed": f'{float(self.max_speed_row.value.text.split()[0])::.2f}',
+            "avg_speed": f'{float(self.avg_speed_row.value.text.split()[0]):.2f}',
+            "max_speed": f'{float(self.max_speed_row.value.text.split()[0]):.2f}',
             "elevation_gain": f'{float(self.elevation_row.value.text.split()[0]):.2f}',
             "hydration_needed": f'{float(self.hydration_row.value.text.split()[0]):.2f}',
             "path_coordinates": self.path_coordinates,
